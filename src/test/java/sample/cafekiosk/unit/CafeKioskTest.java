@@ -3,10 +3,13 @@ package sample.cafekiosk.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
 
 import sample.cafekiosk.unit.beverage.Americano;
 import sample.cafekiosk.unit.beverage.Latte;
+import sample.cafekiosk.unit.order.Order;
 
 class CafeKioskTest {
 
@@ -78,6 +81,37 @@ class CafeKioskTest {
 
 		cafeKiosk.clear();
 		assertThat(cafeKiosk.getBeverageList()).isEmpty();
+
+	}
+
+	/**
+	 * 테스트하기 어려운 영역을 분리하기
+	 * 1. 시간이라는 값을 외부에서 받도록 파라미터로 분리하였음.
+	 * 2. 테스트하고자 하는 영역을 확실히 하기.
+	 * 3. 외부로 분리할 수록 테스트 가능한 코드가 많아진다.
+	 */
+	@Test
+	void createOrderWithCurrentTime() {
+		CafeKiosk cafeKiosk = new CafeKiosk();
+		Americano americano = new Americano();
+
+		cafeKiosk.add(americano);
+
+		Order order = cafeKiosk.createOrder(LocalDateTime.of(2023, 9, 25, 10, 0));
+
+		assertThat(order.getBeverageList()).hasSize(1);
+		assertThat(order.getBeverageList().get(0).getName()).isEqualTo("Americano");
+	}
+
+	@Test
+	void createOrderOutsideOpenTime() {
+		CafeKiosk cafeKiosk = new CafeKiosk();
+		Americano americano = new Americano();
+
+		cafeKiosk.add(americano);
+		assertThatThrownBy(() -> cafeKiosk.createOrder(LocalDateTime.of(2023, 9, 25, 9, 59)))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("주문 가능한 시간이 아닙니다. 관리자에게 문의하세요.");
 
 	}
 
