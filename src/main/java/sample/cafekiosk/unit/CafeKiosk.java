@@ -40,11 +40,9 @@ public class CafeKiosk {
 	}
 
 	public int calculateTotalPrice() {
-		int totalPrice = 0;
-		for (Beverage beverage : beverageList) {
-			totalPrice += beverage.getPrice();
-		}
-		return totalPrice;
+		return beverageList.stream()
+			.mapToInt(Beverage::getPrice)
+			.sum();
 	}
 
 	public Order createOrder(LocalDateTime currentDateTime) {
@@ -55,4 +53,5 @@ public class CafeKiosk {
 		}
 		return new Order(currentDateTime, beverageList);
 	}
+
 }
